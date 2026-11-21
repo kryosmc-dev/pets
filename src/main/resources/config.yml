@@ -1,0 +1,271 @@
+# ============================================================
+#  KryosMascotas - Mascotas que luchan, suben de nivel y
+#  desbloquean recompensas, efectos, habilidades y estelas.
+#  Formato de textos: MiniMessage
+# ============================================================
+
+prefijo: "<gradient:#ff5555:#ffaa00><bold>KRYOS</bold></gradient> <dark_gray>»</dark_gray> "
+invocar-al-entrar: true        # vuelve a invocar la última mascota activa al entrar
+autoguardado-minutos: 5
+maximo-nivel: 50
+
+# Menús (%pagina% %paginas% %mascota% se reemplazan solos)
+menu:
+  titulo-general: "<gradient:#ff5555:#ffaa00><bold>Mascotas</bold></gradient> <dark_gray>(%pagina%/%paginas%)"
+  titulo-niveles: "%mascota% <dark_gray>- Niveles (%pagina%/%paginas%)"
+  titulo-mascota: "%mascota% <dark_gray>- Menú"
+  relleno: BLACK_STAINED_GLASS_PANE
+  nivel-desbloqueado: LIME_STAINED_GLASS_PANE
+  nivel-progreso: YELLOW_STAINED_GLASS_PANE
+  nivel-bloqueado: RED_STAINED_GLASS_PANE
+
+# XP necesaria para subir de nivel = base + (nivel actual * por-nivel)
+xp:
+  base: 50
+  por-nivel: 30
+  por-matar-hostil: 10
+  por-matar-pasivo: 2
+  por-matar-jugador: 25
+  por-matar-jefe: 500
+  bonus-ataque-mascota: 5      # extra si la mascota ayudó a matar
+  multiplicador-global: 1.0    # súbelo en eventos de XP doble
+
+mascota:
+  velocidad: 1.2
+  distancia-seguir: 3.0
+  distancia-teletransporte: 20
+  rango-ataque: 12
+  auto-defender: true          # ataca monstruos cercanos sin que le golpees
+  rango-defensa: 8
+  enfriamiento-ataque: 1.0     # segundos entre golpes (mínimo 0.5)
+  atacar-jugadores: false
+
+# ------------------------------------------------------------
+#  RECOMPENSAS POR NIVEL (se entregan una sola vez por mascota)
+#  Opciones: descripcion (se ve en el menú), mensaje,
+#            desbloquear-mascota, comandos, solo-mascota
+#  Variables en comandos: %player% %pet% %level%
+#  Puedes cambiar los comandos por dinero (eco give %player% 500),
+#  cajas, rangos, ítems de otros plugins, etc.
+# ------------------------------------------------------------
+recompensas:
+  2:
+    descripcion: "1 manzana dorada"
+    mensaje: "<green>Tu mascota encontró <gold>1 manzana dorada<green>."
+    comandos:
+      - "give %player% minecraft:golden_apple 1"
+  3:
+    descripcion: "3 diamantes"
+    mensaje: "<green>Tu mascota desenterró <aqua>3 diamantes<green>."
+    comandos:
+      - "give %player% minecraft:diamond 3"
+  5:
+    descripcion: "Desbloqueas al Zorro"
+    mensaje: "<yellow>¡Tu mascota ha alcanzado el nivel 5!"
+    desbloquear-mascota: zorro
+    comandos:
+      - "experience add %player% 3 levels"
+  7:
+    descripcion: "16 botellas de experiencia"
+    comandos:
+      - "give %player% minecraft:experience_bottle 16"
+  10:
+    descripcion: "Desbloqueas al Oso Polar"
+    mensaje: "<aqua>¡Nivel 10! Un temible oso se une a tu colección."
+    desbloquear-mascota: oso
+    comandos:
+      - "give %player% minecraft:diamond 8"
+  12:
+    descripcion: "5 niveles de experiencia"
+    comandos:
+      - "experience add %player% 5 levels"
+  15:
+    descripcion: "Tótem de la inmortalidad"
+    mensaje: "<gold>Tu mascota te regala un <white>tótem<gold>."
+    comandos:
+      - "give %player% minecraft:totem_of_undying 1"
+  18:
+    descripcion: "2 manzanas encantadas"
+    comandos:
+      - "give %player% minecraft:enchanted_golden_apple 2"
+  20:
+    descripcion: "Desbloqueas al Golem de Hierro"
+    mensaje: "<white>¡Nivel 20! Un guardián de hierro te protegerá."
+    desbloquear-mascota: golem
+    comandos:
+      - "give %player% minecraft:netherite_scrap 4"
+  25:
+    descripcion: "Espada de diamante (solo Lobo)"
+    solo-mascota: lobo
+    mensaje: "<gray>El lobo te trae una espada de diamante."
+    comandos:
+      - "give %player% minecraft:diamond_sword 1"
+  30:
+    descripcion: "Desbloqueas al Esqueleto Wither"
+    mensaje: "<dark_gray>¡Nivel 30! Algo oscuro despierta..."
+    desbloquear-mascota: wither
+    comandos:
+      - "give %player% minecraft:netherite_ingot 2"
+  35:
+    descripcion: "10 niveles de experiencia"
+    comandos:
+      - "experience add %player% 10 levels"
+  40:
+    descripcion: "Desbloqueas a la Bestia"
+    mensaje: "<red>¡Nivel 40! La Bestia responde a tu llamada."
+    desbloquear-mascota: bestia
+    comandos:
+      - "give %player% minecraft:netherite_ingot 4"
+  45:
+    descripcion: "Bloque de netherita"
+    comandos:
+      - "give %player% minecraft:netherite_block 1"
+  50:
+    descripcion: "Anuncio global + 5 manzanas encantadas"
+    mensaje: "<gold><bold>¡NIVEL MÁXIMO!</bold> <yellow>Tu mascota es una leyenda."
+    comandos:
+      - "give %player% minecraft:enchanted_golden_apple 5"
+      - 'tellraw @a {"text":"¡%player% llevó a su mascota al nivel máximo!","color":"gold"}'
+
+# ------------------------------------------------------------
+#  MASCOTAS
+#  entidad:      cualquier mob de Bukkit (EntityType)
+#  icono:        material para el menú
+#  por-defecto:  true = todos la tienen desde el inicio
+#  habilidades:  FUEGO, RAYO, LENTITUD, VENENO (al golpear)
+#                CURAR, ESCUDO (automáticas)
+#  efectos:      "EFECTO:amplificador:nivel" (se aplican al dueño)
+#  estela:       partículas que se desbloquean por nivel
+# ------------------------------------------------------------
+mascotas:
+  lobo:
+    nombre: "<gray>Lobo Guardián"
+    entidad: WOLF
+    icono: BONE
+    por-defecto: true
+    descripcion: "Leal y feroz, el compañero clásico."
+    danio-base: 3
+    danio-por-nivel: 0.30
+    habilidades:
+      - { tipo: FUEGO, nivel: 10, duracion: 4 }
+      - { tipo: CURAR, nivel: 20, cantidad: 4, enfriamiento: 30 }
+      - { tipo: RAYO, nivel: 35, probabilidad: 0.20, danio: 5 }
+    efectos:
+      - "SPEED:0:5"
+      - "STRENGTH:0:25"
+    estela:
+      - { particula: HAPPY_VILLAGER, nivel: 1 }
+      - { particula: HEART, nivel: 10 }
+      - { particula: FLAME, nivel: 20 }
+
+  gato:
+    nombre: "<yellow>Gato Ninja"
+    entidad: CAT
+    icono: COD
+    por-defecto: true
+    descripcion: "Ágil y silencioso, ve en la oscuridad."
+    danio-base: 2.5
+    danio-por-nivel: 0.25
+    habilidades:
+      - { tipo: LENTITUD, nivel: 8, duracion: 3, nivel-efecto: 1 }
+      - { tipo: CURAR, nivel: 15, cantidad: 3, enfriamiento: 25 }
+    efectos:
+      - "JUMP_BOOST:0:5"
+      - "NIGHT_VISION:0:15"
+    estela:
+      - { particula: NOTE, nivel: 1 }
+      - { particula: ENCHANT, nivel: 12 }
+
+  zorro:
+    nombre: "<gold>Zorro Astuto"
+    entidad: FOX
+    icono: SWEET_BERRIES
+    descripcion: "Veloz y venenoso."
+    desbloqueo: "Lleva cualquier mascota al nivel 5"
+    danio-base: 3.5
+    danio-por-nivel: 0.30
+    habilidades:
+      - { tipo: VENENO, nivel: 10, duracion: 4, nivel-efecto: 0 }
+      - { tipo: CURAR, nivel: 25, cantidad: 4, enfriamiento: 25 }
+    efectos:
+      - "SPEED:1:20"
+      - "LUCK:0:10"
+    estela:
+      - { particula: CHERRY_LEAVES, nivel: 1 }
+      - { particula: SNOWFLAKE, nivel: 15 }
+
+  oso:
+    nombre: "<aqua>Oso Polar"
+    entidad: POLAR_BEAR
+    icono: SNOWBALL
+    descripcion: "Pesado, resistente y helado."
+    desbloqueo: "Lleva cualquier mascota al nivel 10"
+    danio-base: 6
+    danio-por-nivel: 0.40
+    habilidades:
+      - { tipo: LENTITUD, nivel: 12, duracion: 5, nivel-efecto: 2 }
+      - { tipo: ESCUDO, nivel: 20, duracion: 15, nivel-efecto: 1, enfriamiento: 45 }
+    efectos:
+      - "RESISTANCE:0:15"
+      - "HEALTH_BOOST:0:30"
+    estela:
+      - { particula: SNOWFLAKE, nivel: 1 }
+      - { particula: END_ROD, nivel: 25 }
+
+  golem:
+    nombre: "<white>Golem de Hierro"
+    entidad: IRON_GOLEM
+    icono: IRON_BLOCK
+    descripcion: "Un tanque que protege a su dueño."
+    desbloqueo: "Lleva cualquier mascota al nivel 20"
+    danio-base: 8
+    danio-por-nivel: 0.50
+    habilidades:
+      - { tipo: ESCUDO, nivel: 5, duracion: 15, nivel-efecto: 2, enfriamiento: 40 }
+      - { tipo: RAYO, nivel: 25, probabilidad: 0.25, danio: 6 }
+    efectos:
+      - "RESISTANCE:1:10"
+      - "HASTE:0:30"
+    estela:
+      - { particula: END_ROD, nivel: 1 }
+      - { particula: CRIT, nivel: 20 }
+
+  wither:
+    nombre: "<dark_gray>Esqueleto Wither"
+    entidad: WITHER_SKELETON
+    icono: WITHER_SKELETON_SKULL
+    descripcion: "Oscuro y letal. Inmune al fuego."
+    desbloqueo: "Lleva cualquier mascota al nivel 30"
+    danio-base: 10
+    danio-por-nivel: 0.60
+    habilidades:
+      - { tipo: FUEGO, nivel: 1, duracion: 6 }
+      - { tipo: VENENO, nivel: 15, duracion: 5, nivel-efecto: 1 }
+      - { tipo: CURAR, nivel: 25, cantidad: 6, enfriamiento: 30 }
+    efectos:
+      - "FIRE_RESISTANCE:0:1"
+      - "STRENGTH:1:20"
+    estela:
+      - { particula: SOUL_FIRE_FLAME, nivel: 1 }
+      - { particula: FLAME, nivel: 25 }
+
+  bestia:
+    nombre: "<dark_red>La Bestia"
+    entidad: RAVAGER
+    icono: NETHERITE_SCRAP
+    descripcion: "La mascota definitiva. Destruye todo a su paso."
+    desbloqueo: "Lleva cualquier mascota al nivel 40"
+    danio-base: 14
+    danio-por-nivel: 0.80
+    habilidades:
+      - { tipo: LENTITUD, nivel: 1, duracion: 4, nivel-efecto: 1 }
+      - { tipo: RAYO, nivel: 10, probabilidad: 0.30, danio: 8 }
+      - { tipo: ESCUDO, nivel: 20, duracion: 20, nivel-efecto: 3, enfriamiento: 40 }
+    efectos:
+      - "STRENGTH:1:1"
+      - "RESISTANCE:1:20"
+      - "REGENERATION:0:30"
+    estela:
+      - { particula: CRIT, nivel: 1 }
+      - { particula: SOUL_FIRE_FLAME, nivel: 15 }
+      - { particula: END_ROD, nivel: 30 }
